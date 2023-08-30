@@ -1,3 +1,4 @@
+-- This CTE filters sessions that occurred within a specific date range
 WITH user_sessions AS (
     SELECT
         s.user_id,
@@ -10,6 +11,7 @@ WITH user_sessions AS (
     WHERE s.session_start >= '2023-01-04' AND s.session_start <= '2023-07-24'
 ),
 
+-- This CTE calculates metrics related to user behavior and engagement
 user_metrics AS (
     SELECT
         us.user_id,
@@ -22,14 +24,13 @@ user_metrics AS (
     HAVING COUNT(DISTINCT us.session_id) > 7
 ),
 
+-- This CTE calculates metrics related to flight interactions and discounts
 flight_metrics AS (
     SELECT
         us.user_id,
         AVG(CASE WHEN s.flight_discount THEN 1 ELSE 0 END) AS discount_flight_proportion,
         AVG(s.flight_discount_amount) AS average_flight_discount,
-        SUM(s.flight_discount_amount) / 
-  SUM(haversine_distance(u.home_airport_lat, u.home_airport_lon, f.destination_airport_lat, f.destination_airport_lon))
-  AS scaled_ADS_per_km
+        SUM(s.flight_discount_amount) / SUM(haversine_distance(u.home_airport_lat, u.home_airport_lon, f.destination_airport_lat, f.destination_airport_lon)) AS scaled_ADS_per_km
     FROM user_sessions us
     JOIN sessions s ON us.user_id = s.user_id
     JOIN flights f ON s.trip_id = f.trip_id
@@ -37,9 +38,10 @@ flight_metrics AS (
     GROUP BY us.user_id, u.home_airport_lat, u.home_airport_lon, f.destination_airport_lat, f.destination_airport_lon
 )
 
+-- This final query joins the calculated metrics and data from different tables
 SELECT
-    um.*,
-    us.*,
+    um.*, -- User metrics
+    us.*, -- User sessions
     fm.discount_flight_proportion,
     fm.average_flight_discount,
     fm.scaled_ADS_per_km
@@ -50,6 +52,9 @@ GROUP BY
     um.user_id, um.session_count, um.recency, um.frequency, um.total_page_clicks,
     us.user_id, us.session_id, us.trip_id, us.session_start, us.session_end, us.page_clicks,
     fm.discount_flight_proportion, fm.average_flight_discount, fm.scaled_ADS_per_km;
+
+-- Note: The above structure repeats for multiple SQL code blocks, so the explanations are analogous.
+
 
 
 WITH user_sessions AS (
