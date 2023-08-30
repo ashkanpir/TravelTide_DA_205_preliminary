@@ -1,8 +1,10 @@
 # TravelTide_DA_205_preliminary
 Business Context
+
 TravelTide, a growing player in the online travel industry, is looking to improve customer retention through a personalized rewards program. Your role as a data analyst is to support the Head of Marketing, Elena Tarrant, in designing a rewards program that resonates with customers' interests.
 
 Project Structure
+
 The project consists of the following key components:
 
 Business Understanding: Understand TravelTide's objectives and the importance of customer segmentation.
