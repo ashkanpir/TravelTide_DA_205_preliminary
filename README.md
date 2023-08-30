@@ -7,13 +7,27 @@ Project Structure
 
 The project consists of the following key components:
 
-Business Understanding: Understand TravelTide's objectives and the importance of customer segmentation.
-SQL Data Extraction: Extract customer data from TravelTide's relational database using SQL.
-Data Exploration: Analyze customer behaviour data, make necessary calculations, and identify potential segments.
-Segmentation Techniques: Utilize statistical and visual techniques to segment customers based on their preferences.
-Presentation and Communication: Summarize your findings, create presentation slides, and record a video presentation.
-Deadline: The first submission deadline is September 4th, with a second deadline on October 2nd for improvements.
+Business Understanding:
+
+Understand TravelTide's objectives and the importance of customer segmentation.
+SQL Data Extraction: 
+
+Extract customer data from TravelTide's relational database using SQL.
+Data Exploration:
+
+Analyze customer behaviour data, make necessary calculations, and identify potential segments.
+Segmentation Techniques:
+
+Utilize statistical and visual techniques to segment customers based on their preferences.
+Presentation and Communication:
+
+Summarize your findings, create presentation slides, and record a video presentation.
+Deadline: 
+
+The first submission deadline is September 4th, with a second deadline on October 2nd for improvements.
+
 Dataset
+
 The project uses a relational database stored in Beekeeper Studio. The database includes several tables containing information about users, sessions, flights, and hotels. This data will be leveraged to understand customer behaviour and identify meaningful segments.
 
 You can connect to the TravelTide database using the following connection details:
