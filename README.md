@@ -19,7 +19,8 @@ You can connect to the TravelTide database using the following connection detail
 Database URL: postgres://Test:bQNxVzJL4g6u@ep-noisy-flower-846766.us-east-2.aws.neon.tech/TravelTide
 For a detailed description of the tables and their columns, please refer to the database schema provided by Master School.
 
-Getting Started
+Getting Started:
+
 To get started with the project, follow these steps:
 
 Clone or fork this repository to your local machine.
