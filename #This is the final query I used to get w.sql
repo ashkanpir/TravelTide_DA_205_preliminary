@@ -1,4 +1,5 @@
 #This is the final query I used to get what were needed for clustering. Ostensibly, I had to modify or engineer a lot of the variables. 
+-- This CTE combines user information, session details, and flight/hotel data to create a summary of user sessions
 WITH UserSessionSummary AS (
     SELECT
         u.user_id,
@@ -31,6 +32,8 @@ WITH UserSessionSummary AS (
     WHERE
         s.session_start >= '2023-01-04'::DATE
 ),
+
+-- This CTE counts the total number of sessions per user, filtering out users with less than 8 sessions
 SessionCounts AS (
     SELECT
         user_id,
@@ -42,6 +45,8 @@ SessionCounts AS (
     HAVING
         COUNT(DISTINCT session_id) > 7
 )
+
+-- This final query aggregates and calculates various metrics based on user session summaries
 SELECT
     uss.user_id,
     uss.age,
