@@ -1,0 +1,183 @@
+--This is to replace the original haversine function, it runs on my pgAdmin on a selection of the original data, you may need to modify it.
+CREATE OR REPLACE FUNCTION calculate_flight_distance(
+    in_home_airport_lat numeric,
+    in_home_airport_lon numeric,
+    in_destination_airport_lat numeric,
+    in_destination_airport_lon numeric
+)
+RETURNS numeric AS $$
+DECLARE
+    a numeric := 6378137.0; -- Semi-major axis of the ellipsoid (WGS-84)
+    f numeric := 1 / 298.257223563; -- Flattening of the ellipsoid (WGS-84)
+    lat1_rad numeric;
+    lon1_rad numeric;
+    lat2_rad numeric;
+    lon2_rad numeric;
+    delta_lon numeric;
+    U1 numeric;
+    U2 numeric;
+    sin_U1 numeric;
+    cos_U1 numeric;
+    sin_U2 numeric;
+    cos_U2 numeric;
+    lambda_L numeric;
+    lambda_prev numeric;
+    iter_limit integer := 100;
+    sin_lambda numeric;
+    cos_lambda numeric;
+    sin_sigma numeric;
+    cos_sigma numeric;
+    sigma numeric;
+    sin_alpha numeric;
+    cos2_alpha numeric;
+    cos_2sigma_m numeric;
+    C numeric;
+    u2 numeric;
+    A numeric;
+    B numeric;
+    delta_sigma numeric;
+    distance numeric;
+BEGIN
+    lat1_rad := radians(in_home_airport_lat);
+    lon1_rad := radians(in_home_airport_lon);
+    lat2_rad := radians(in_destination_airport_lat);
+    lon2_rad := radians(in_destination_airport_lon);
+
+    delta_lon := lon2_rad - lon1_rad;
+
+    U1 := atan((1 - f) * tan(lat1_rad));
+    U2 := atan((1 - f) * tan(lat2_rad));
+
+    sin_U1 := sin(U1);
+    cos_U1 := cos(U1);
+    sin_U2 := sin(U2);
+    cos_U2 := cos(U2);
+
+    lambda_L := delta_lon;
+    lambda_prev := 2 * pi();
+
+    WHILE abs(lambda_L - lambda_prev) > 1e-12 AND iter_limit > 0 LOOP
+        sin_lambda := sin(lambda_L);
+        cos_lambda := cos(lambda_L);
+        sin_sigma := sqrt((cos_U2 * sin_lambda) ^ 2 + (cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda) ^ 2);
+        cos_sigma := sin_U1 * sin_U2 + cos_U1 * cos_U2 * cos_lambda;
+        sigma := atan2(sin_sigma, cos_sigma);
+        sin_alpha := cos_U1 * cos_U2 * sin_lambda / sin_sigma;
+        cos2_alpha := 1 - sin_alpha ^ 2;
+        cos_2sigma_m := cos_sigma - 2 * sin_U1 * sin_U2 / cos2_alpha;
+        C := f / 16 * cos2_alpha * (4 + f * (4 - 3 * cos2_alpha));
+        lambda_prev := lambda_L;
+        lambda_L := delta_lon + (1 - C) * f * sin_alpha * (
+                sigma + C * sin_sigma * (cos_2sigma_m + C * cos_sigma * (-1 + 2 * cos_2sigma_m ^ 2)));
+
+        iter_limit := iter_limit - 1;
+    END LOOP;
+
+    u2 := cos2_alpha * ((a ^ 2 - 6356752.3142 ^ 2) / 6356752.3142 ^ 2);
+    A := 1 + u2 / 16384 * (4096 + u2 * (-768 + u2 * (320 - 175 * u2)));
+    B := u2 / 1024 * (256 + u2 * (-128 + u2 * (74 - 47 * u2)));
+    delta_sigma := B * sin_sigma * (
+            cos_2sigma_m + B / 4 * (cos_sigma * (-1 + 2 * cos_2sigma_m ^ 2) - B / 6 * cos_2sigma_m * (
+            -3 + 4 * sin_sigma ^ 2) * (-3 + 4 * cos_2sigma_m ^ 2)));
+
+    distance := 6356752.3142 * A * (sigma - delta_sigma) / 1000;  -- Convert to kilometers
+    
+    RETURN distance;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+CREATE OR REPLACE FUNCTION calculate_flight_distance(
+    in_home_airport_lat numeric,
+    in_home_airport_lon numeric,
+    in_destination_airport_lat numeric,
+    in_destination_airport_lon numeric
+)
+RETURNS numeric AS $$
+DECLARE
+    a numeric := 6378137.0; -- Semi-major axis of the ellipsoid (WGS-84)
+    f numeric := 1 / 298.257223563; -- Flattening of the ellipsoid (WGS-84)
+    lat1_rad numeric;
+    lon1_rad numeric;
+    lat2_rad numeric;
+    lon2_rad numeric;
+    delta_lon numeric;
+    U1 numeric;
+    U2 numeric;
+    sin_U1 numeric;
+    cos_U1 numeric;
+    sin_U2 numeric;
+    cos_U2 numeric;
+    lambda_L numeric;
+    lambda_prev numeric;
+    iter_limit integer := 100;
+    sin_lambda numeric;
+    cos_lambda numeric;
+    sin_sigma numeric;
+    cos_sigma numeric;
+    sigma numeric;
+    sin_alpha numeric;
+    cos2_alpha numeric;
+    cos_2sigma_m numeric;
+    C numeric;
+    u2 numeric;
+    A numeric;
+    B numeric;
+    delta_sigma numeric;
+    distance numeric;
+BEGIN
+    lat1_rad := radians(in_home_airport_lat);
+    lon1_rad := radians(in_home_airport_lon);
+    lat2_rad := radians(in_destination_airport_lat);
+    lon2_rad := radians(in_destination_airport_lon);
+
+    delta_lon := lon2_rad - lon1_rad;
+
+    U1 := atan((1 - f) * tan(lat1_rad));
+    U2 := atan((1 - f) * tan(lat2_rad));
+
+    sin_U1 := sin(U1);
+    cos_U1 := cos(U1);
+    sin_U2 := sin(U2);
+    cos_U2 := cos(U2);
+
+    lambda_L := delta_lon;
+    lambda_prev := 2 * pi();
+
+    WHILE abs(lambda_L - lambda_prev) > 1e-12 AND iter_limit > 0 LOOP
+        sin_lambda := sin(lambda_L);
+        cos_lambda := cos(lambda_L);
+        sin_sigma := sqrt((cos_U2 * sin_lambda) ^ 2 + (cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda) ^ 2);
+        cos_sigma := sin_U1 * sin_U2 + cos_U1 * cos_U2 * cos_lambda;
+        sigma := atan2(sin_sigma, cos_sigma);
+        sin_alpha := cos_U1 * cos_U2 * sin_lambda / sin_sigma;
+        cos2_alpha := 1 - sin_alpha ^ 2;
+        cos_2sigma_m := cos_sigma - 2 * sin_U1 * sin_U2 / cos2_alpha;
+        C := f / 16 * cos2_alpha * (4 + f * (4 - 3 * cos2_alpha));
+        lambda_prev := lambda_L;
+        lambda_L := delta_lon + (1 - C) * f * sin_alpha * (
+                sigma + C * sin_sigma * (cos_2sigma_m + C * cos_sigma * (-1 + 2 * cos_2sigma_m ^ 2)));
+
+        iter_limit := iter_limit - 1;
+    END LOOP;
+
+    u2 := cos2_alpha * ((a ^ 2 - 6356752.3142 ^ 2) / 6356752.3142 ^ 2);
+    A := 1 + u2 / 16384 * (4096 + u2 * (-768 + u2 * (320 - 175 * u2)));
+    B := u2 / 1024 * (256 + u2 * (-128 + u2 * (74 - 47 * u2)));
+    delta_sigma := B * sin_sigma * (
+            cos_2sigma_m + B / 4 * (cos_sigma * (-1 + 2 * cos_2sigma_m ^ 2) - B / 6 * cos_2sigma_m * (
+            -3 + 4 * sin_sigma ^ 2) * (-3 + 4 * cos_2sigma_m ^ 2)));
+
+    distance := 6356752.3142 * A * (sigma - delta_sigma) / 1000;  -- Convert to kilometers
+    
+    RETURN distance;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
