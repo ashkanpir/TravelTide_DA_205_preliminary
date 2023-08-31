@@ -37,7 +37,11 @@ SELECT
     END AS percentage_flights_with_checked_bags,
     AVG(f.base_fare_usd) AS avg_base_fare_usd,
     AVG(h.hotel_per_room_usd) AS avg_hotel_per_room_usd,
-    (cohort.ADS_per_km - MIN(cohort.ADS_per_km) OVER ()) / (MAX(cohort.ADS_per_km) OVER () - MIN(cohort.ADS_per_km) OVER ()) AS scaled_ADS_per_km
+    (cohort.ADS_per_km - MIN(cohort.ADS_per_km) OVER ()) / (MAX(cohort.ADS_per_km) OVER () - MIN(cohort.ADS_per_km) OVER ()) AS scaled_ADS_per_km,
+    SUM(CASE WHEN s.flight_discount_amount > 0 THEN 1 ELSE 0 END)::FLOAT / COUNT(*) AS discount_flight_proportion,
+    MAX(s.session_start) AS last_session_time
+    -- Recency: latest session time
+
 FROM
     users u
 JOIN
